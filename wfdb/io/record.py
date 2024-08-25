@@ -1913,6 +1913,7 @@ def rdheader(record_name, pn_dir=None, rd_segments=False):
 
 def rdrecord(
     record_name,
+    header_name=None,
     sampfrom=0,
     sampto=None,
     channels=None,
@@ -1940,6 +1941,11 @@ def rdrecord(
         parameter is set, this parameter should contain just the base
         record name, and the files fill be searched for remotely.
         Otherwise, the data files will be searched for in the local path.
+    header_name: str
+        The name of the wfdb header header associated with the record.
+        If None, the header file will be assumed to be named as the record name.
+        Different header name is implemented to be used for 
+        reading numeric data from MIMIC III waveform database.
     sampfrom : int, optional
         The starting sample number to read for all channels.
     sampto : int, 'end', optional
@@ -2016,6 +2022,9 @@ def rdrecord(
                                channels=[1, 3])
 
     """
+    if header_name is None:
+        header_name = record_name
+
     dir_name, base_record_name = os.path.split(record_name)
     dir_name = os.path.abspath(dir_name)
 
@@ -2026,7 +2035,7 @@ def rdrecord(
             dir_list[0], download.get_version(dir_list[0]), *dir_list[1:]
         )
 
-    record = rdheader(record_name, pn_dir=pn_dir, rd_segments=False)
+    record = rdheader(header_name, pn_dir=pn_dir, rd_segments=False)
 
     # Set defaults for sampto and channels input variables
     if sampto is None:
@@ -2248,6 +2257,11 @@ def rdsamp(
         extensions). If the argument contains any path delimiter
         characters, the argument will be interpreted as PATH/baserecord
         and the data files will be searched for in the local path.
+    header_name: str
+        The name of the wfdb header header associated with the record.
+        If None, the header file will be assumed to be named as the record name.
+        Different header name is implemented to be used for 
+        reading numeric data from MIMIC III waveform database.
     sampfrom : int, optional
         The starting sample number to read for all channels.
     sampto : int, 'end', optional
@@ -2308,6 +2322,9 @@ def rdsamp(
                                       channels=[1,3])
 
     """
+    if header_name is None:
+        header_name = record_name
+
     if (pn_dir is not None) and ("." not in pn_dir):
         dir_list = pn_dir.split("/")
         pn_dir = posixpath.join(
@@ -2316,6 +2333,7 @@ def rdsamp(
 
     record = rdrecord(
         record_name=record_name,
+        header_name=header_name,
         sampfrom=sampfrom,
         sampto=sampto,
         channels=channels,
